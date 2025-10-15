@@ -50,15 +50,14 @@ export PATH="$TOOLCHAIN_PATH:$PATH"
 
 # Enable ccache for speed up compiling 
 export CCACHE_DIR="$HOME/.cache/ccache_mikernel" 
-export CC="ccache clang -Os -ffunction-sections -fdata-sections"
-export CXX="ccache clang++ -Os -ffunction-sections -fdata-sections"
-export LD="ld.lld --gc-sections"
+export CC="ccache clang"
+export CXX="ccache clang++"
 export PATH="/usr/lib/ccache:$PATH"
 echo "CCACHE_DIR: [$CCACHE_DIR]"
 
 
 MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- CLANG_TRIPLE=aarch64-linux-gnu-"
-CFLAGS="-Os -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto -Wno-error"
+CFLAGS="--target=aarch64-unknown-linux-musl -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto -Wno-error"
 #LDFLAGS="-Wl,--gc-sections --strip-debug"
 
 
@@ -133,7 +132,7 @@ rm -rf out/
 #更新所有文件的时间戳为系统时间
 find . -exec touch -h {} +
 
-make CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS ${TARGET_DEVICE}_defconfig
+make LD="ld.lld --gc-sections" CC="clang -Os -ffunction-sections -fdata-sections" CXX="clang++ -Os -ffunction-sections -fdata-sections" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS ${TARGET_DEVICE}_defconfig
 
 if [ $KSU_ENABLE -eq 1 ]; then
     scripts/config --file out/.config \
@@ -183,7 +182,7 @@ scripts/config --file out/.config \
     -e CONFIG_THINLTO \
     -d CONFIG_CFI_CLANG
 
-make CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS -j$(nproc)
+make LD="ld.lld --gc-sections" CC="clang -Os -ffunction-sections -fdata-sections" CXX="clang++ -Os -ffunction-sections -fdata-sections" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS -j$(nproc)
 
 
 
