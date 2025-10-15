@@ -130,7 +130,7 @@ rm -rf out/
 #更新所有文件的时间戳为系统时间
 find . -exec touch -h {} +
 
-make LD="ld.lld --gc-sections --strip-debug --undefined=jiffies_64" CC="ccache clang -Os -ffunction-sections -fdata-sections" CXX="ccache clang++ -Os -ffunction-sections -fdata-sections" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS ${TARGET_DEVICE}_defconfig
+make LD="ld.lld --gc-sections --strip-debug --undefined=jiffies_64 --undefined=main_extable_sort_needed" CC="ccache clang -Os -ffunction-sections -fdata-sections" CXX="ccache clang++ -Os -ffunction-sections -fdata-sections" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS ${TARGET_DEVICE}_defconfig
 
 if [ $KSU_ENABLE -eq 1 ]; then
     scripts/config --file out/.config \
@@ -180,7 +180,7 @@ scripts/config --file out/.config \
     -e CONFIG_THINLTO \
     -d CONFIG_CFI_CLANG
 
-make LD="ld.lld --gc-sections --strip-debug --undefined=jiffies_64" CC="ccache clang -Os -ffunction-sections -fdata-sections" CXX="ccache clang++ -Os -ffunction-sections -fdata-sections" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS -j$(nproc)
+make LD="ld.lld --gc-sections --strip-debug --undefined=jiffies_64 --undefined=main_extable_sort_needed" CC="ccache clang -Os -ffunction-sections -fdata-sections" CXX="ccache clang++ -Os -ffunction-sections -fdata-sections" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS -j$(nproc)
 
 
 
