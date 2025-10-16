@@ -55,7 +55,7 @@ echo "CCACHE_DIR: [$CCACHE_DIR]"
 
 
 MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- CLANG_TRIPLE=aarch64-linux-gnu-"
-CFLAGS="--target=aarch64-unknown-linux-musl -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto -Wno-error"
+CFLAGS="--target=aarch64-unknown-linux-musl -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error"
 #LDFLAGS="-Wl,--gc-sections --strip-debug"
 
 
@@ -200,15 +200,15 @@ rm -rf anykernel/kernels/
 mkdir -p anykernel/kernels/
 
 # Patch for SukiSU KPM support. 
-#if [ $KSU_ENABLE -eq 1 ]; then
-#    cd out/arch/arm64/boot/
-#    wget -nv -O patch_linux https://github.com/mmxdxmm/SukiSU_KernelPatch_patch/releases/download/v0.12.0/patch_linux
-#    chmod +x patch_linux
-#    ./patch_linux
-#    rm Image
-#    mv oImage Image
-#    cd -
-#fi
+if [ $KSU_ENABLE -eq 1 ]; then
+    cd out/arch/arm64/boot/
+    wget -nv -O patch_linux https://github.com/mmxdxmm/SukiSU_KernelPatch_patch/releases/download/v0.12.0/patch_linux
+    chmod +x patch_linux
+    ./patch_linux
+    rm Image
+    mv oImage Image
+    cd -
+fi
 
 cp out/arch/arm64/boot/Image anykernel/
 cp out/arch/arm64/boot/dtb anykernel/
