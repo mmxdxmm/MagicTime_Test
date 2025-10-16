@@ -55,8 +55,7 @@ echo "CCACHE_DIR: [$CCACHE_DIR]"
 
 
 MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- CLANG_TRIPLE=aarch64-linux-gnu-"
-set_CC="ccache clang -Os -ffunction-sections -fdata-sections --target=aarch64-unknown-linux-musl -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error"
-set_LD="ld.lld --strip-debug --undefined=jiffies_64 --undefined=main_extable_sort_needed"
+CFLAGS="--target=aarch64-unknown-linux-musl -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto -Wno-error"
 #LDFLAGS="-Wl,--gc-sections --strip-debug"
 
 
@@ -131,7 +130,7 @@ rm -rf out/
 #更新所有文件的时间戳为系统时间
 find . -exec touch -h {} +
 
-make LD="$set_LD" CC="$set_CC" CXX="$set_CC" $MAKE_ARGS ${TARGET_DEVICE}_defconfig
+make LD="ld.lld --strip-debug --undefined=jiffies_64 --undefined=main_extable_sort_needed" CC="ccache clang -Os -ffunction-sections -fdata-sections" CXX="ccache clang++ -Os -ffunction-sections -fdata-sections" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS ${TARGET_DEVICE}_defconfig
 
 if [ $KSU_ENABLE -eq 1 ]; then
     scripts/config --file out/.config \
@@ -178,10 +177,10 @@ scripts/config --file out/.config \
     -d CONFIG_LIB80211_DEBUG \
     -e CONFIG_LD_DEAD_CODE_DATA_ELIMINATION \
     -e CONFIG_CPU_IDLE_GOV_TEO \
-    -e CONFIG_THINLTO \
+    -d CONFIG_THINLTO \
     -d CONFIG_CFI_CLANG
 
-make LD="$set_LD" CC="$set_CC" CXX="$set_CC" $MAKE_ARGS -j$(nproc)
+make LD="ld.lld --strip-debug --undefined=jiffies_64 --undefined=main_extable_sort_needed" CC="ccache clang -Os -ffunction-sections -fdata-sections" CXX="ccache clang++ -Os -ffunction-sections -fdata-sections" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS -j$(nproc)
 
 
 
