@@ -4,7 +4,7 @@ set -e
 
 if [ -f "android-ndk-r28c.zip" ]; then
     echo "文件已存在，正在解压..."
-    yes | unzip android-ndk-r28c.zip
+    yes | unzip android-ndk-r29.zip
 else
     echo "文件不存在，正在下载..."
     wget -nv -O android-ndk-r29.zip "https://dl.google.com/android/repository/android-ndk-r29-linux.zip"
@@ -54,8 +54,8 @@ echo "CCACHE_DIR: [$CCACHE_DIR]"
 
 
 MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 AR=llvm-ar NM=llvm-nm STRIP=llvm-strip OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump HOSTAR=llvm-ar"
-set_CC="ccache clang -Os -ffunction-sections -fdata-sections --target=aarch64-linux-android35 -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error --sysroot=$PWD/android-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
-set_LD="ld.lld --strip-debug"
+set_CC="ccache clang -Os -ffunction-sections -fdata-sections --target=aarch64-unknown-linux-android -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error -I$PWD//android-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include"
+set_LD="ld.lld --strip-debug -L$PWD/android-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android"
 set_LDFLAGS_vmlinux="--gc-sections"
 
 
