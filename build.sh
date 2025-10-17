@@ -55,8 +55,9 @@ echo "CCACHE_DIR: [$CCACHE_DIR]"
 
 
 MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- CLANG_TRIPLE=aarch64-linux-gnu-"
-CFLAGS="--target=aarch64-unknown-linux-musl -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error"
-#LDFLAGS="-Wl,--gc-sections --strip-debug"
+set_CC="ccache clang -Os -ffunction-sections -fdata-sections --target=aarch64-unknown-linux-musl -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error"
+set_LD="ld.lld --strip-debug"
+set_LDFLAGS_vmlinux="--gc-sections"
 
 
 if [ "$1" == "j1" ]; then
@@ -130,7 +131,7 @@ rm -rf out/
 #更新所有文件的时间戳为系统时间
 find . -exec touch -h {} +
 
-make LD="ld.lld --strip-debug --undefined=jiffies_64 --undefined=main_extable_sort_needed" CC="ccache clang -Os -ffunction-sections -fdata-sections" CXX="ccache clang++ -Os -ffunction-sections -fdata-sections" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS ${TARGET_DEVICE}_defconfig
+make LD="$set_LD" CC="$set_CC" CXX="$set_CC" LDFLAGS_vmlinux="$set_LDFLAGS_vmlinux" $MAKE_ARGS ${TARGET_DEVICE}_defconfig
 
 if [ $KSU_ENABLE -eq 1 ]; then
     scripts/config --file out/.config \
@@ -180,7 +181,7 @@ scripts/config --file out/.config \
     -e CONFIG_THINLTO \
     -d CONFIG_CFI_CLANG
 
-make LD="ld.lld --strip-debug --undefined=jiffies_64 --undefined=main_extable_sort_needed" CC="ccache clang -Os -ffunction-sections -fdata-sections" CXX="ccache clang++ -Os -ffunction-sections -fdata-sections" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS -j$(nproc)
+make LD="$set_LD" CC="$set_CC" CXX="$set_CC" LDFLAGS_vmlinux="$set_LDFLAGS_vmlinux" $MAKE_ARGS -j$(nproc)
 
 
 
