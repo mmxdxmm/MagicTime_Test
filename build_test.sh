@@ -54,7 +54,7 @@ echo "CCACHE_DIR: [$CCACHE_DIR]"
 
 
 MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 AR=llvm-ar NM=llvm-nm STRIP=llvm-strip OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump HOSTAR=llvm-ar"
-set_CC="ccache clang -Os -ffunction-sections -fdata-sections --target=aarch64-unknown-linux-musl -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error --sysroot=$TOOLCHAIN_PATH/../sysroot -I$TOOLCHAIN_PATH/../sysroot/usr/include/aarch64-linux-android -I/usr/include/aarch64-linux-gnu"
+set_CC="ccache clang -Os -ffunction-sections -fdata-sections --target=aarch64-linux-android35 -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error --sysroot=$TOOLCHAIN_PATH/../sysroot -I$TOOLCHAIN_PATH/../sysroot/usr/include/aarch64-linux-android -I/usr/include/aarch64-linux-gnu"
 set_LD="ld.lld --strip-debug -L$TOOLCHAIN_PATH/../sysroot/usr/lib/aarch64-linux-android/35"
 set_LDFLAGS_vmlinux="--gc-sections"
 
