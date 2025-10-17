@@ -7,10 +7,10 @@ if [ -f "android-ndk-r28c.zip" ]; then
     yes | unzip android-ndk-r28c.zip
 else
     echo "文件不存在，正在下载..."
-    wget -nv -O android-ndk-r28c.zip "https://dl.google.com/android/repository/android-ndk-r28c-linux.zip"
+    wget -nv -O android-ndk-r29.zip "https://dl.google.com/android/repository/android-ndk-r29-linux.zip"
     if [ $? -eq 0 ]; then
         echo "下载完成，正在解压..."
-        yes | unzip android-ndk-r28c.zip
+        yes | unzip android-ndk-r29.zip
     else
         echo "下载失败，请检查网络或链接是否正确。"
     fi
@@ -18,7 +18,7 @@ fi
 
 #yes | tar -xvf electron-binutils-2.41.tar.xz
 yes | unzip change.zip
-TOOLCHAIN_PATH=$PWD/android-ndk-r28c/toolchains/llvm/prebuilt/linux-x86_64/bin
+TOOLCHAIN_PATH=$PWD/android-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/bin
 #BINUTILS_PATH=$PWD/electron-binutils-2.41/bin
 GIT_COMMIT_ID="mmxdxmm"
 
@@ -54,7 +54,7 @@ echo "CCACHE_DIR: [$CCACHE_DIR]"
 
 
 MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 AR=llvm-ar NM=llvm-nm STRIP=llvm-strip OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump HOSTAR=llvm-ar"
-set_CC="ccache clang -Os -ffunction-sections -fdata-sections --target=aarch64-linux-android35 -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error --sysroot=$PWD/android-ndk-r28c/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
+set_CC="ccache clang -Os -ffunction-sections -fdata-sections --target=aarch64-linux-android35 -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error --sysroot=$PWD/android-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
 set_LD="ld.lld --strip-debug"
 set_LDFLAGS_vmlinux="--gc-sections"
 
