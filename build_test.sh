@@ -2,15 +2,16 @@
 
 set -e
 
-if [ -f "android-ndk-r28c.zip" ]; then
+mkdir -p clang
+if [ -f "clang.tar.gz" ]; then
     echo "文件已存在，正在解压..."
-    yes | unzip android-ndk-r29.zip
+    yes | tar -xvf clang.tar.gz -C clang
 else
     echo "文件不存在，正在下载..."
-    wget -nv -O android-ndk-r29.zip "https://dl.google.com/android/repository/android-ndk-r29-linux.zip"
+    wget -nv -O clang.tar.gz "https://github.com/mmxdxmm/aosp-clang/releases/download/r563880c/clang-r563880c.tar.gz"
     if [ $? -eq 0 ]; then
         echo "下载完成，正在解压..."
-        yes | unzip android-ndk-r29.zip
+        yes | tar -xvf clang.tar.gz -C clang
     else
         echo "下载失败，请检查网络或链接是否正确。"
     fi
@@ -19,8 +20,8 @@ fi
 wget -nv -O binutils.zip https://github.com/mmxdxmm/binutils/releases/download/20251013/x86-64_binutils-2.33.1.zip
 yes | unzip binutils.zip
 yes | unzip change.zip
-TOOLCHAIN_PATH=$PWD/android-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/bin
-#BINUTILS_PATH=$PWD/electron-binutils-2.41/bin
+TOOLCHAIN_PATH=$PWD/clang/bin
+BINUTILS_PATH=$PWD/binutils/bin
 GIT_COMMIT_ID="mmxdxmm"
 
 TARGET_DEVICE=$1
@@ -45,7 +46,7 @@ if [ ! -d $TOOLCHAIN_PATH ]; then
 fi
 
 echo "TOOLCHAIN_PATH: [$TOOLCHAIN_PATH]"
-export PATH="$TOOLCHAIN_PATH:$PATH"
+export PATH="$TOOLCHAIN_PATH:$BINUTILS_PATH:$PATH"
 
 
 # Enable ccache for speed up compiling 
@@ -54,9 +55,9 @@ export PATH="/usr/lib/ccache:$PATH"
 echo "CCACHE_DIR: [$CCACHE_DIR]"
 
 
-MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 AR=llvm-ar NM=llvm-nm STRIP=llvm-strip OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump HOSTAR=llvm-ar"
-set_CC="ccache clang -Os -ffunction-sections -fdata-sections --target=aarch64-linux-musl -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error -I$PWD/binutils/aarch64-linux-musl/include -I/usr/include/aarch64-linux-gnu"
-set_LD="ld.lld --strip-debug -L$PWD/binutils/aarch64-linux-musl/lib"
+MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 CROSS_COMPILE=aarch64-linux-musl- CROSS_COMPILE_ARM32=arm-linux-musleabi- CROSS_COMPILE_COMPAT=arm-linux-musleabi- CLANG_TRIPLE=aarch64-linux-musl- AR=llvm-ar NM=llvm-nm STRIP=llvm-strip OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump HOSTAR=llvm-ar"
+set_CC="ccache clang -Os -ffunction-sections -fdata-sections --target=aarch64-linux-musl -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error"
+set_LD="ld.lld --strip-debug"
 set_LDFLAGS_vmlinux="--gc-sections"
 
 
