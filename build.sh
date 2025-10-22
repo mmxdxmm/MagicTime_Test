@@ -54,8 +54,8 @@ export PATH="/usr/lib/ccache:$PATH"
 echo "CCACHE_DIR: [$CCACHE_DIR]"
 
 
-MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- CLANG_TRIPLE=aarch64-linux-gnu-"
-set_CC="ccache clang -Os -ffunction-sections -fdata-sections --target=aarch64-unknown-linux-gnu -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error"
+MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 AR=llvm-ar NM=llvm-nm STRIP=llvm-strip OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump HOSTAR=llvm-ar CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- CLANG_TRIPLE=aarch64-linux-gnu-"
+set_CC="ccache clang -Os -ffunction-sections -fdata-sections -march=armv8.2-a+lse+crypto+dotprod -flto=thin -Wno-error"
 set_LD="ld.lld --strip-debug"
 set_LDFLAGS_vmlinux="--gc-sections"
 
