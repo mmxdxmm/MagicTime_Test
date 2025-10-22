@@ -17,10 +17,10 @@ else
     fi
 fi
 
-#yes | tar -xvf electron-binutils-2.41.tar.xz
+yes | tar -xvf electron-binutils-2.41.tar.xz
 yes | unzip change.zip
 TOOLCHAIN_PATH=$PWD/clang/bin
-#BINUTILS_PATH=$PWD/electron-binutils-2.41/bin
+BINUTILS_PATH=$PWD/electron-binutils-2.41/bin
 GIT_COMMIT_ID="mmxdxmm"
 
 TARGET_DEVICE=$1
@@ -45,7 +45,7 @@ if [ ! -d $TOOLCHAIN_PATH ]; then
 fi
 
 echo "TOOLCHAIN_PATH: [$TOOLCHAIN_PATH]"
-export PATH="$TOOLCHAIN_PATH:$PATH"
+export PATH="$TOOLCHAIN_PATH:$BINUTILS_PATH:$PATH"
 
 
 # Enable ccache for speed up compiling 
