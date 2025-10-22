@@ -55,7 +55,7 @@ export PATH="/usr/lib/ccache:$PATH"
 echo "CCACHE_DIR: [$CCACHE_DIR]"
 
 
-MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 CROSS_COMPILE=aarch64-linux-musl- CROSS_COMPILE_ARM32=arm-linux-musleabi- CROSS_COMPILE_COMPAT=arm-linux-musleabi- CLANG_TRIPLE=aarch64-linux-musl- AR=llvm-ar NM=llvm-nm STRIP=llvm-strip OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump HOSTAR=llvm-ar"
+MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 CROSS_COMPILE=aarch64-linux-musl- CROSS_COMPILE_ARM32=arm-linux-musleabi- CROSS_COMPILE_COMPAT=arm-linux-musleabi- CLANG_TRIPLE=aarch64-linux-musl-"
 set_CC="ccache clang -Os -ffunction-sections -fdata-sections --target=aarch64-unknown-linux-musl -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error"
 set_LD="ld.lld --strip-debug"
 set_LDFLAGS_vmlinux="--gc-sections"
@@ -132,7 +132,7 @@ rm -rf out/
 #更新所有文件的时间戳为系统时间
 find . -exec touch -h {} +
 
-make LD="$set_LD" HOSTLD="$set_LD" CC="$set_CC" CXX="$set_CC" HOSTCC="$set_CC" HOSTCXX="$set_CC" LDFLAGS_vmlinux="$set_LDFLAGS_vmlinux" $MAKE_ARGS ${TARGET_DEVICE}_defconfig
+make LD="$set_LD" CC="$set_CC" CXX="$set_CC" LDFLAGS_vmlinux="$set_LDFLAGS_vmlinux" $MAKE_ARGS ${TARGET_DEVICE}_defconfig
 
 if [ $KSU_ENABLE -eq 1 ]; then
     scripts/config --file out/.config \
@@ -182,7 +182,7 @@ scripts/config --file out/.config \
     -e CONFIG_THINLTO \
     -d CONFIG_CFI_CLANG
 
-make LD="$set_LD" HOSTLD="$set_LD" CC="$set_CC" CXX="$set_CC" HOSTCC="$set_CC" HOSTCXX="$set_CC" LDFLAGS_vmlinux="$set_LDFLAGS_vmlinux" $MAKE_ARGS -j$(nproc)
+make LD="$set_LD" CC="$set_CC" CXX="$set_CC" LDFLAGS_vmlinux="$set_LDFLAGS_vmlinux" $MAKE_ARGS -j$(nproc)
 
 
 
