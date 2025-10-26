@@ -18,7 +18,7 @@ else
 fi
 
 #yes | unzip change.zip
-yes | tar -xvf electron-binutils-2.41.tar.xz
+#yes | tar -xvf electron-binutils-2.41.tar.xz
 TOOLCHAIN_PATH=$PWD/clang/bin
 #BINUTILS_PATH=$PWD/electron-binutils-2.41/bin
 GIT_COMMIT_ID="mmxdxmm"
@@ -45,20 +45,19 @@ if [ ! -d $TOOLCHAIN_PATH ]; then
 fi
 
 echo "TOOLCHAIN_PATH: [$TOOLCHAIN_PATH]"
-export PATH="$TOOLCHAIN_PATH:$BINUTILS_PATH:$PATH"
+export PATH="$TOOLCHAIN_PATH:$PATH"
 
 
 # Enable ccache for speed up compiling 
-export CCACHE_DIR="$HOME/.cache/ccache_mikernel" 
-export CC="ccache clang"
-export CXX="ccache clang++"
+export CCACHE_DIR="$HOME/.cache/ccache_mikernel"
 export PATH="/usr/lib/ccache:$PATH"
 echo "CCACHE_DIR: [$CCACHE_DIR]"
 
 
-MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LLVM=1 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- CLANG_TRIPLE=aarch64-linux-gnu-"
-CFLAGS="--target=aarch64-linux-gnu -Os -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto -Wno-error"
-#LDFLAGS="-Wl,--gc-sections --strip-debug"
+MAKE_ARGS="ARCH=arm64 SUBARCH=arm64 O=out LVM=1 LLVM_IAS=1 AR=llvm-ar NM=llvm-nm STRIP=llvm-strip OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump HOSTAR=llvm-ar CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- CLANG_TRIPLE=aarch64-linux-gnu-"
+set_CC="ccache clang --target=aarch64-linux-musl --sysroot=$PWD/clang/ -Os -march=armv8.2-a+lse+crypto+dotprod -mcpu=cortex-a77 -flto=thin -Wno-error"
+set_HOSTCC="ccache clang -Os -flto=thin -Wno-error"
+set_LD="ld.lld --strip-debug"
 
 
 if [ "$1" == "j1" ]; then
@@ -111,7 +110,7 @@ rm -rf out/
 rm -rf anykernel/
 
 echo "Clone AnyKernel3 for packing kernel (repo: https://github.com/mmxdxmm/AnyKernel3)"
-git clone https://github.com/mmxdxmm/AnyKernel3 -b kona --single-branch --depth=1 anykernel
+git clone https://github.com/mmxdxmm/AnyKernel3 -b main --single-branch --depth=1 anykernel
 
 # Add date to local version
 local_version_str="-perf"
@@ -129,7 +128,7 @@ rm -rf out/
 #更新所有文件的时间戳为系统时间
 find . -exec touch -h {} +
 
-make CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS ${TARGET_DEVICE}_defconfig
+make LD="$set_LD" HOSTLD="$set_LD" CC="$set_CC" CXX="$set_CC" HOSTCC="$set_HOSTCC" HOSTCXX="$set_HOSTCC" $MAKE_ARGS ${TARGET_DEVICE}_defconfig
 
 if [ $KSU_ENABLE -eq 1 ]; then
     scripts/config --file out/.config \
@@ -190,7 +189,7 @@ scripts/config --file out/.config \
     -e CONFIG_KALLSYMS \
     -e CONFIG_KALLSYMS_ALL
 
-make CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" $MAKE_ARGS -j$(nproc)
+make LD="$set_LD" HOSTLD="$set_LD" CC="$set_CC" CXX="$set_CC" HOSTCC="$set_HOSTCC" HOSTCXX="$set_HOSTCC" $MAKE_ARGS -j$(nproc)
 
 
 
@@ -206,8 +205,9 @@ find out/arch/arm64/boot/dts -name '*.dtb' -exec cat {} + >out/arch/arm64/boot/d
 
 
 
-rm -rf anykernel/kernels/
-mkdir -p anykernel/kernels/
+rm -rf anykernel/Image
+rm -rf anykernel/dtb
+rm -rf anykernel/dtbo.img
 
 # Patch for SukiSU KPM support. 
 #if [ $KSU_ENABLE -eq 1 ]; then
@@ -220,8 +220,9 @@ mkdir -p anykernel/kernels/
 #    cd -
 #fi
 
-cp out/arch/arm64/boot/Image anykernel/kernels/
-cp out/arch/arm64/boot/dtb anykernel/kernels/
+cp out/arch/arm64/boot/Image anykernel/
+cp out/arch/arm64/boot/dtb anykernel/
+cp out/arch/arm64/boot/dtbo.img anykernel/
 
 echo "Build finished."
 
