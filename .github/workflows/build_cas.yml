@@ -17,7 +17,7 @@ jobs:
 
       - name: Build Kernel
         run: |
-          bash build.sh cas ksu > out.txt
+          bash build_other.sh cas ksu > out.txt
           [ -f out/.config ] && cp out/.config config.txt
 
       - name: Upload Artifacts
